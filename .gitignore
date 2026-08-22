@@ -1,0 +1,20 @@
+# Python virtual environment
+.venv/
+__pycache__/
+*.pyc
+
+# Local log files
+app.log
+test.log
+
+# Local screen recording / screenshot saves
+Snapped It!/
+test_rec.mp4
+test_rec_fps.mp4
+
+# User settings
+snapped_it_settings.json
+
+# OS files
+.DS_Store
+Thumbs.db
