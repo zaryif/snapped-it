@@ -82,3 +82,20 @@ Once installed, you can launch **Snapped It!** anytime using any of these 3 meth
 3. **Project Directory**: Run **`./run.sh`** from inside the repository folder.
 
 *(Manual run: `source .venv/bin/activate && python main.py`)*
+
+---
+
+## 🗑️ Clean Uninstallation
+
+If you ever wish to remove **Snapped It!**, shortcuts, and its virtual environment, simply run:
+
+```bash
+./uninstall.sh
+```
+
+The uninstaller cleanly removes:
+* The Desktop shortcut (`Snapped It!.command`)
+* The global CLI command (`~/.local/bin/snapped-it`)
+* The Python virtual environment (`.venv`) and caches
+* (Optional) User settings (`snapped_it_settings.json`)
+
