@@ -60,29 +60,25 @@ Snapped It/
 
 ---
 
-## 🚀 Installation & Quick Start
+## 🚀 Installation & Setup Wizard
 
-### Option 1: Fresh Clone & Run (One-Liner from Anywhere)
-Run this single command in your terminal to clone the repository, install dependencies, and launch **Snapped It!**:
-
-```bash
-git clone https://github.com/zaryif/snapped-it.git && cd snapped-it && python3 -m venv .venv && source .venv/bin/activate && pip install --upgrade pip && pip install -r requirements.txt && python main.py
-```
-
-### Option 2: Running from Existing Local Project
-If you have already downloaded or cloned the project, navigate into the project directory before running:
+### 🪄 Setup Wizard (Automated)
+Run the automated setup wizard. It validates prerequisites, installs Python dependencies, creates a double-clickable Desktop shortcut, and registers a global `snapped-it` terminal command:
 
 ```bash
-# 1. Navigate to the project folder
-cd path/to/snapped-it
-
-# 2. Activate virtual environment and install requirements (if not done yet)
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-
-# 3. Launch the app
-python main.py
+git clone https://github.com/zaryif/snapped-it.git && cd snapped-it && ./install.sh
 ```
 
-*(On Windows PowerShell, use `cd snapped-it; python -m venv .venv; .venv\Scripts\Activate.ps1; pip install -r requirements.txt; python main.py`)*
+*(If already in the project directory, simply run `./install.sh`)*
+
+---
+
+## 🏃 How to Run Snapped It!
+
+Once installed, you can launch **Snapped It!** anytime using any of these 3 methods:
+
+1. **Desktop App**: Double-click **`Snapped It!.command`** on your Desktop.
+2. **Terminal (Global)**: Type **`snapped-it`** from any terminal window.
+3. **Project Directory**: Run **`./run.sh`** from inside the repository folder.
+
+*(Manual run: `source .venv/bin/activate && python main.py`)*
