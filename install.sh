@@ -64,7 +64,7 @@ if [[ "$create_cli" =~ ^[Yy]$ ]]; then
     mkdir -p "$BIN_DIR"
     cat << EOF > "$BIN_DIR/snapped-it"
 #!/bin/bash
-cd "$DIR" && source "$DIR/.venv/bin/activate" && python "$DIR/main.py" "\$@"
+"$DIR/.venv/bin/python" "$DIR/main.py" "\$@"
 EOF
     chmod +x "$BIN_DIR/snapped-it"
 
@@ -87,7 +87,7 @@ if [[ "$create_desktop" =~ ^[Yy]$ ]]; then
     if [ -d "$HOME/Desktop" ]; then
         cat << EOF > "$HOME/Desktop/Snapped It!.command"
 #!/bin/bash
-cd "$DIR" && source "$DIR/.venv/bin/activate" && python "$DIR/main.py"
+"$DIR/.venv/bin/python" "$DIR/main.py"
 EOF
         chmod +x "$HOME/Desktop/Snapped It!.command"
         echo "  ✓ Desktop launcher created: '~/Desktop/Snapped It!.command'"
@@ -96,7 +96,7 @@ fi
 
 # Setup Autostart
 if [[ "$autostart" =~ ^[Yy]$ ]]; then
-    python3 -c "from app.utils import set_autostart_enabled; set_autostart_enabled(True, '$DIR')"
+    "$DIR/.venv/bin/python" -c "from app.utils import set_autostart_enabled; set_autostart_enabled(True, '$DIR')"
     echo "  ✓ Configured to start automatically on system boot."
 fi
 
@@ -119,5 +119,5 @@ launch_now=${launch_now:-Y}
 
 if [[ "$launch_now" =~ ^[Yy]$ ]]; then
     echo "Starting Snapped It!..."
-    python main.py
+    "$DIR/.venv/bin/python" "$DIR/main.py"
 fi

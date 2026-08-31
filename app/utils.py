@@ -102,42 +102,37 @@ def set_window_excluded_from_capture(window, exclude: bool = True) -> None:
 
             objc_lib = ctypes.util.find_library("objc")
             if not objc_lib:
-                print("[SnappedIt] Could not find libobjc — window exclusion unavailable")
                 return
             objc = ctypes.cdll.LoadLibrary(objc_lib)
 
-            # Setup objc_msgSend
-            objc.objc_msgSend.restype = ctypes.c_void_p
-            objc.objc_msgSend.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
-
-            # sel_registerName
+            # Setup sel_registerName
             objc.sel_registerName.restype = ctypes.c_void_p
             objc.sel_registerName.argtypes = [ctypes.c_char_p]
 
+            # Explicit CFUNCTYPE declarations for ARM64 calling convention safety
+            msg_send_get_window = ctypes.CFUNCTYPE(
+                ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p
+            )(objc.objc_msgSend)
+            msg_send_set_sharing = ctypes.CFUNCTYPE(
+                None, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_ulong
+            )(objc.objc_msgSend)
+
             # Get NSView pointer from QWidget
             ns_view = int(window.winId())
+            if not ns_view:
+                return
 
-            # Get NSWindow from NSView: [nsView window]
             sel_window = objc.sel_registerName(b"window")
-            ns_window = objc.objc_msgSend(ns_view, sel_window)
+            ns_window = msg_send_get_window(ns_view, sel_window)
 
             if not ns_window:
-                print("[SnappedIt] Could not get NSWindow from view")
                 return
 
             # Set sharing type: [nsWindow setSharingType:0 or 1]
             # NSWindowSharingNone = 0, NSWindowSharingReadOnly = 1
             sharing_type = 0 if exclude else 1
             sel_set_sharing = objc.sel_registerName(b"setSharingType:")
-            objc.objc_msgSend.argtypes = [
-                ctypes.c_void_p,
-                ctypes.c_void_p,
-                ctypes.c_ulong,
-            ]
-            objc.objc_msgSend(ns_window, sel_set_sharing, sharing_type)
-
-            # Reset argtypes for future calls
-            objc.objc_msgSend.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
+            msg_send_set_sharing(ns_window, sel_set_sharing, sharing_type)
 
             state = "excluded from" if exclude else "included in"
             print(f"[SnappedIt] macOS: Window {state} screen capture")

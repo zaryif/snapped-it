@@ -64,19 +64,14 @@ class HotkeyManager(QObject):
         self.start()
 
     # ------------------------------------------------------------------
-    # Signal emission from background thread
+    # Signal emission
     # ------------------------------------------------------------------
 
     def _on_screenshot(self):
-        """Called from pynput thread — emit signal safely on the main thread."""
-        QMetaObject.invokeMethod(
-            self, "_emit_screenshot", Qt.ConnectionType.QueuedConnection,
-        )
+        self.screenshot_triggered.emit()
 
     def _on_recording(self):
-        QMetaObject.invokeMethod(
-            self, "_emit_recording", Qt.ConnectionType.QueuedConnection,
-        )
+        self.recording_triggered.emit()
 
     @staticmethod
     def _convert_hotkey_string(hotkey: str) -> str | None:
@@ -101,10 +96,3 @@ class HotkeyManager(QObject):
                 converted.append(part)
 
         return "+".join(converted)
-
-    # These slots are invoked via QMetaObject.invokeMethod from bg thread
-    def _emit_screenshot(self):
-        self.screenshot_triggered.emit()
-
-    def _emit_recording(self):
-        self.recording_triggered.emit()

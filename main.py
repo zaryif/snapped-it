@@ -6,15 +6,6 @@ from PySide6.QtCore import QTimer, Qt
 from PySide6.QtGui import QFont
 
 def main():
-    # On macOS, force GUI activation policy so the floating window can draw and be focused
-    if sys.platform == 'darwin':
-        try:
-            from Cocoa import NSApplication, NSApplicationActivationPolicyAccessory
-            ns_app = NSApplication.sharedApplication()
-            ns_app.setActivationPolicy_(1) # NSApplicationActivationPolicyAccessory = 1
-        except Exception as e:
-            print(f"[SnappedIt] macOS activation policy setup failed: {e}")
-
     # Create QApplication
     app = QApplication(sys.argv)
     app.setQuitOnLastWindowClosed(False)  # Keep running when toolbar hidden
