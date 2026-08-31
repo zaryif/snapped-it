@@ -32,7 +32,11 @@ def get_save_path(base_dir: str, subfolder: str, organize_by_day: bool, extensio
     Returns:
         Full path like base_dir/Snapped It!/Screenshot/[2026-08-23/]Screenshot_2026-08-23_01-02-33.png
     """
-    root = Path(base_dir).resolve() / "Snapped It!" / subfolder
+    base = Path(base_dir).resolve()
+    if base.name == "Snapped It!":
+        root = base / subfolder
+    else:
+        root = base / "Snapped It!" / subfolder
 
     if organize_by_day:
         root = root / date.today().strftime("%Y-%m-%d")
