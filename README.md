@@ -17,7 +17,7 @@ An ultra-minimalist, distraction-free floating capture toolbar designed to match
 * **Access Method 2 (System Tray)**: **Right-click** the Snapped It! icon in your system menu bar (tray) and click **Settings**.
 * **Clean Flat Settings Dashboard**: Refactored flat list sections separated by thin minimalist dividers (`#1c1c1e`) containing:
   * **Save Location**: Custom folder path picker (defaults to creating a `Snapped It!` folder in the active directory).
-  * **Exclude Toolbar Option**: When checked, the toolbar hides itself entirely during captures to remain invisible.
+  * **Exclude Toolbar Option**: When checked, the toolbar hides itself entirely during captures to remain invisible in output files.
   * **Blinking Indicator Toggle**: Option to stop the red dot from pulsing during recordings.
   * **Show Timer Toggle**: Option to hide the time counter during recordings.
   * **Custom Alert Titles**: Type custom text headings for your capture notifications.
@@ -52,7 +52,7 @@ Snapped It/
 
 ## 🛠 Prerequisites
 
-1. **Python 3.10+**: Ensure Python is installed (stable version like Python 3.13.2 is recommended).
+1. **Python 3.10+**: Ensure Python is installed (stable version like Python 3.13 is recommended).
 2. **FFmpeg**: Screen recording requires `ffmpeg` to be installed and added to your system's `PATH`.
    * **macOS**: `brew install ffmpeg`
    * **Windows**: `choco install ffmpeg`
@@ -60,12 +60,29 @@ Snapped It/
 
 ---
 
-## 🚀 Installation & Setup (One-Liner)
+## 🚀 Installation & Quick Start
 
-Copy and run the following command in your terminal to set up the environment, install requirements, and run **Snapped It!** immediately:
+### Option 1: Fresh Clone & Run (One-Liner from Anywhere)
+Run this single command in your terminal to clone the repository, install dependencies, and launch **Snapped It!**:
 
 ```bash
-python3 -m venv .venv && source .venv/bin/activate && pip install -r requirements.txt && python main.py
+git clone https://github.com/zaryif/snapped-it.git && cd snapped-it && python3 -m venv .venv && source .venv/bin/activate && pip install --upgrade pip && pip install -r requirements.txt && python main.py
 ```
 
-*(On Windows PowerShell, use `python -m venv .venv; .venv\Scripts\Activate.ps1; pip install -r requirements.txt; python main.py`)*
+### Option 2: Running from Existing Local Project
+If you have already downloaded or cloned the project, navigate into the project directory before running:
+
+```bash
+# 1. Navigate to the project folder
+cd path/to/snapped-it
+
+# 2. Activate virtual environment and install requirements (if not done yet)
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+
+# 3. Launch the app
+python main.py
+```
+
+*(On Windows PowerShell, use `cd snapped-it; python -m venv .venv; .venv\Scripts\Activate.ps1; pip install -r requirements.txt; python main.py`)*
