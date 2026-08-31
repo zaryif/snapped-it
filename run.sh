@@ -6,7 +6,14 @@ cd "$DIR"
 
 if [ ! -d ".venv" ]; then
     echo "[Snapped It!] Creating virtual environment..."
-    python3 -m venv .venv
+    PY_BIN="python3"
+    for candidate in python3.13 python3.12 python3.11 python3.10; do
+        if command -v "$candidate" &> /dev/null; then
+            PY_BIN="$candidate"
+            break
+        fi
+    done
+    "$PY_BIN" -m venv .venv
 fi
 
 source .venv/bin/activate

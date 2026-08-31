@@ -12,11 +12,27 @@ echo ""
 
 # 1. Check Python
 echo "[1/4] Checking Python environment..."
-if ! command -v python3 &> /dev/null; then
-    echo "  ✗ Error: Python 3 is not installed. Please install Python 3.10+."
-    exit 1
+PY_BIN=""
+for candidate in python3.13 python3.12 python3.11 python3.10 python3; do
+    if command -v "$candidate" &> /dev/null; then
+        PY_VER=$("$candidate" -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')" 2>/dev/null || true)
+        if [[ "$candidate" == "python3" ]] && [[ "$PY_VER" == "3.14"* ]]; then
+            continue
+        fi
+        PY_BIN="$candidate"
+        break
+    fi
+done
+
+if [ -z "$PY_BIN" ]; then
+    if command -v python3 &> /dev/null; then
+        PY_BIN="python3"
+    else
+        echo "  ✗ Error: Python 3 is not installed. Please install Python 3.10+."
+        exit 1
+    fi
 fi
-echo "  ✓ Python $(python3 --version 2>&1 | awk '{print $2}') found."
+echo "  ✓ Python $("$PY_BIN" --version 2>&1 | awk '{print $2}') found ($PY_BIN)."
 
 # 2. Check FFmpeg
 echo "[2/4] Checking FFmpeg (required for video recording)..."
@@ -30,7 +46,7 @@ fi
 # 3. Setup Virtual Environment & Install Dependencies
 echo "[3/4] Setting up virtual environment & dependencies..."
 if [ ! -d ".venv" ]; then
-    python3 -m venv .venv
+    "$PY_BIN" -m venv .venv
 fi
 source .venv/bin/activate
 pip install -q --upgrade pip
