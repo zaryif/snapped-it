@@ -51,6 +51,10 @@ create_desktop=${create_desktop:-Y}
 read -p "Register global 'snapped-it' command in terminal? [Y/n]: " create_cli
 create_cli=${create_cli:-Y}
 
+# Prompt 3: Autostart on boot
+read -p "Start Snapped It! automatically on system boot / login? [y/N]: " autostart
+autostart=${autostart:-N}
+
 echo ""
 echo "[4/4] Applying preferences..."
 
@@ -88,6 +92,12 @@ EOF
         chmod +x "$HOME/Desktop/Snapped It!.command"
         echo "  ✓ Desktop launcher created: '~/Desktop/Snapped It!.command'"
     fi
+fi
+
+# Setup Autostart
+if [[ "$autostart" =~ ^[Yy]$ ]]; then
+    python3 -c "from app.utils import set_autostart_enabled; set_autostart_enabled(True, '$DIR')"
+    echo "  ✓ Configured to start automatically on system boot."
 fi
 
 echo ""

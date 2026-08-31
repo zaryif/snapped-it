@@ -12,7 +12,7 @@ from PySide6.QtWidgets import (
 )
 
 from app.styles import Colors, get_settings_dialog_stylesheet
-from app.utils import get_monitors
+from app.utils import get_monitors, set_autostart_enabled, is_autostart_enabled
 
 
 class SettingsManager(QObject):
@@ -37,6 +37,7 @@ class SettingsManager(QObject):
         "recording_toast_title": "Recording Saved",
         "blink_record_dot": True,
         "show_timer_in_toolbar": True,
+        "launch_at_startup": False,
     }
 
     def __init__(self, config_dir: str):
@@ -57,6 +58,8 @@ class SettingsManager(QObject):
                     self._data[key] = saved.get(key, default)
             except Exception as e:
                 print(f"[SnappedIt] Could not load settings: {e}")
+        # Always sync with actual OS state
+        self._data["launch_at_startup"] = is_autostart_enabled()
 
     def save(self):
         try:
@@ -204,6 +207,15 @@ class SettingsManager(QObject):
     def show_timer_in_toolbar(self, v: bool):
         self.set("show_timer_in_toolbar", v)
 
+    @property
+    def launch_at_startup(self) -> bool:
+        return self._data.get("launch_at_startup", False)
+
+    @launch_at_startup.setter
+    def launch_at_startup(self, v: bool):
+        set_autostart_enabled(v, self._config_dir)
+        self.set("launch_at_startup", v)
+
 
 # ======================================================================
 # Settings Dialog
@@ -308,6 +320,10 @@ class SettingsDialog(QDialog):
         self._show_timer_cb = QCheckBox("Show elapsed time in toolbar")
         self._show_timer_cb.setChecked(self._settings.show_timer_in_toolbar)
         layout.addWidget(self._show_timer_cb)
+
+        self._autostart_cb = QCheckBox("Start automatically on system boot / login")
+        self._autostart_cb.setChecked(self._settings.launch_at_startup)
+        layout.addWidget(self._autostart_cb)
 
         # Toast Content
         layout.addWidget(self._create_section_header("Notification Content"))
@@ -471,6 +487,7 @@ class SettingsDialog(QDialog):
         self._settings.recording_toast_title = self._recording_title_input.text().strip() or "Recording Saved"
         self._settings.blink_record_dot = self._blink_cb.isChecked()
         self._settings.show_timer_in_toolbar = self._show_timer_cb.isChecked()
+        self._settings.launch_at_startup = self._autostart_cb.isChecked()
 
         quality_map = {0: "low", 1: "medium", 2: "high"}
         self._settings.recording_quality = quality_map.get(

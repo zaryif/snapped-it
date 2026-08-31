@@ -272,3 +272,138 @@ def get_macos_screen_device_index(monitor_index: int) -> str:
 
     return "3"  # Standard default fallback
 
+
+def set_autostart_enabled(enabled: bool, project_root: str = None) -> bool:
+    """Enable or disable autostart on system boot/login.
+
+    Supports:
+    - macOS: User LaunchAgent plist (~/Library/LaunchAgents/com.snappedit.app.plist)
+    - Windows: HKCU Run registry key
+    - Linux: ~/.config/autostart desktop entry
+    """
+    plat = get_platform()
+    if not project_root:
+        project_root = str(Path(__file__).parent.parent.resolve())
+
+    python_exe = sys.executable
+    main_py = str(Path(project_root) / "main.py")
+
+    if plat == "macos":
+        launch_agents_dir = Path.home() / "Library" / "LaunchAgents"
+        plist_path = launch_agents_dir / "com.snappedit.app.plist"
+
+        if enabled:
+            launch_agents_dir.mkdir(parents=True, exist_ok=True)
+            plist_content = f"""<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.snappedit.app</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>{python_exe}</string>
+        <string>{main_py}</string>
+    </array>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>ProcessType</key>
+    <string>Interactive</string>
+    <key>WorkingDirectory</key>
+    <string>{project_root}</string>
+</dict>
+</plist>
+"""
+            try:
+                plist_path.write_text(plist_content, encoding="utf-8")
+                print("[SnappedIt] macOS LaunchAgent enabled for startup")
+                return True
+            except Exception as e:
+                print(f"[SnappedIt] Failed to enable LaunchAgent: {e}")
+                return False
+        else:
+            try:
+                if plist_path.exists():
+                    plist_path.unlink()
+                print("[SnappedIt] macOS LaunchAgent disabled for startup")
+                return True
+            except Exception as e:
+                print(f"[SnappedIt] Failed to remove LaunchAgent: {e}")
+                return False
+
+    elif plat == "windows":
+        try:
+            import winreg
+
+            key = winreg.HKEY_CURRENT_USER
+            sub_key = r"Software\Microsoft\Windows\CurrentVersion\Run"
+            app_name = "SnappedIt"
+            with winreg.OpenKey(key, sub_key, 0, winreg.KEY_ALL_ACCESS) as reg_key:
+                if enabled:
+                    cmd = f'"{python_exe}" "{main_py}"'
+                    winreg.SetValueEx(reg_key, app_name, 0, winreg.REG_SZ, cmd)
+                else:
+                    try:
+                        winreg.DeleteValue(reg_key, app_name)
+                    except FileNotFoundError:
+                        pass
+            return True
+        except Exception as e:
+            print(f"[SnappedIt] Failed to update Windows startup registry: {e}")
+            return False
+
+    elif plat == "linux":
+        autostart_dir = Path.home() / ".config" / "autostart"
+        desktop_file = autostart_dir / "snapped-it.desktop"
+        if enabled:
+            autostart_dir.mkdir(parents=True, exist_ok=True)
+            desktop_content = f"""[Desktop Entry]
+Type=Application
+Exec="{python_exe}" "{main_py}"
+Hidden=false
+NoDisplay=false
+X-GNOME-Autostart-enabled=true
+Name=Snapped It!
+Comment=Cross-platform screen capture toolbar
+"""
+            try:
+                desktop_file.write_text(desktop_content, encoding="utf-8")
+                return True
+            except Exception as e:
+                print(f"[SnappedIt] Failed to write Linux autostart file: {e}")
+                return False
+        else:
+            try:
+                if desktop_file.exists():
+                    desktop_file.unlink()
+                return True
+            except Exception as e:
+                print(f"[SnappedIt] Failed to remove Linux autostart file: {e}")
+                return False
+
+    return False
+
+
+def is_autostart_enabled() -> bool:
+    """Check if autostart is currently configured on the OS."""
+    plat = get_platform()
+    if plat == "macos":
+        plist_path = Path.home() / "Library" / "LaunchAgents" / "com.snappedit.app.plist"
+        return plist_path.exists()
+    elif plat == "windows":
+        try:
+            import winreg
+
+            key = winreg.HKEY_CURRENT_USER
+            sub_key = r"Software\Microsoft\Windows\CurrentVersion\Run"
+            with winreg.OpenKey(key, sub_key, 0, winreg.KEY_READ) as reg_key:
+                winreg.QueryValueEx(reg_key, "SnappedIt")
+                return True
+        except Exception:
+            return False
+    elif plat == "linux":
+        desktop_file = Path.home() / ".config" / "autostart" / "snapped-it.desktop"
+        return desktop_file.exists()
+    return False
+
+

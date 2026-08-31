@@ -29,6 +29,10 @@ if [ -f "$HOME/.local/bin/snapped-it" ]; then
     echo "  ✓ Removed global 'snapped-it' command."
 fi
 
+# 3. Remove Startup / Autostart integration
+rm -f "$HOME/Library/LaunchAgents/com.snappedit.app.plist" "$HOME/.config/autostart/snapped-it.desktop" 2>/dev/null || true
+echo "  ✓ Removed system startup / boot autostart service."
+
 # 3. Remove virtual environment
 if [ -d "$DIR/.venv" ]; then
     rm -rf "$DIR/.venv"

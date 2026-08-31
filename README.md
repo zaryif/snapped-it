@@ -18,6 +18,7 @@ An ultra-minimalist, distraction-free floating capture toolbar designed to match
 * **Clean Flat Settings Dashboard**: Refactored flat list sections separated by thin minimalist dividers (`#1c1c1e`) containing:
   * **Save Location**: Custom folder path picker (defaults to creating a `Snapped It!` folder in the active directory).
   * **Exclude Toolbar Option**: When checked, the toolbar hides itself entirely during captures to remain invisible in output files.
+  * **Start on System Boot**: Toggle whether Snapped It! starts automatically when you turn on or log in to your computer.
   * **Blinking Indicator Toggle**: Option to stop the red dot from pulsing during recordings.
   * **Show Timer Toggle**: Option to hide the time counter during recordings.
   * **Custom Alert Titles**: Type custom text headings for your capture notifications.
