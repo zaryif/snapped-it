@@ -38,6 +38,7 @@ class SettingsManager(QObject):
         "blink_record_dot": True,
         "show_timer_in_toolbar": True,
         "launch_at_startup": False,
+        "stay_on_all_spaces": True,
     }
 
     def __init__(self, config_dir: str):
@@ -216,6 +217,14 @@ class SettingsManager(QObject):
         set_autostart_enabled(v, self._config_dir)
         self.set("launch_at_startup", v)
 
+    @property
+    def stay_on_all_spaces(self) -> bool:
+        return self._data.get("stay_on_all_spaces", True)
+
+    @stay_on_all_spaces.setter
+    def stay_on_all_spaces(self, v: bool):
+        self.set("stay_on_all_spaces", v)
+
 
 # ======================================================================
 # Settings Dialog
@@ -320,6 +329,10 @@ class SettingsDialog(QDialog):
         self._show_timer_cb = QCheckBox("Show elapsed time in toolbar")
         self._show_timer_cb.setChecked(self._settings.show_timer_in_toolbar)
         layout.addWidget(self._show_timer_cb)
+
+        self._spaces_cb = QCheckBox("Stay visible across all spaces & fullscreen apps")
+        self._spaces_cb.setChecked(self._settings.stay_on_all_spaces)
+        layout.addWidget(self._spaces_cb)
 
         self._autostart_cb = QCheckBox("Start automatically on system boot / login")
         self._autostart_cb.setChecked(self._settings.launch_at_startup)
@@ -487,6 +500,7 @@ class SettingsDialog(QDialog):
         self._settings.recording_toast_title = self._recording_title_input.text().strip() or "Recording Saved"
         self._settings.blink_record_dot = self._blink_cb.isChecked()
         self._settings.show_timer_in_toolbar = self._show_timer_cb.isChecked()
+        self._settings.stay_on_all_spaces = self._spaces_cb.isChecked()
         self._settings.launch_at_startup = self._autostart_cb.isChecked()
 
         quality_map = {0: "low", 1: "medium", 2: "high"}

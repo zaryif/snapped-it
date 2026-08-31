@@ -53,8 +53,15 @@ def main():
     )
     
     # --- Connect Tray signals ---
-    tray.show_requested.connect(toolbar.show)
-    tray.show_requested.connect(toolbar.raise_)
+    def _toggle_toolbar():
+        if toolbar.isVisible():
+            toolbar.hide()
+        else:
+            toolbar.show()
+            toolbar.raise_()
+            toolbar.activateWindow()
+
+    tray.show_requested.connect(_toggle_toolbar)
     tray.screenshot_requested.connect(
         lambda: screenshot_mgr.capture_fullscreen(toolbar)
     )

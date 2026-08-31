@@ -54,7 +54,7 @@ class FloatingToolbar(QWidget):
         self.setWindowFlags(
             Qt.WindowType.FramelessWindowHint
             | Qt.WindowType.WindowStaysOnTopHint
-            | Qt.WindowType.Window
+            | Qt.WindowType.Tool
         )
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
         self.setMouseTracking(True)
@@ -238,6 +238,7 @@ class FloatingToolbar(QWidget):
 
         menu.addSeparator()
 
+        menu.addAction("Hide Toolbar", self.hide)
         menu.addAction("Open Snapped It! Folder", self.open_folder_requested.emit)
         menu.addAction("Settings", self.settings_requested.emit)
         menu.addSeparator()

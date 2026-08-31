@@ -114,6 +114,62 @@ def set_window_excluded_from_capture(window, exclude: bool = True) -> None:
         pass
 
 
+def make_window_stay_on_all_spaces(window, enabled: bool = True) -> bool:
+    """Make a window remain visible across all macOS virtual desktops / Spaces
+    and floating above fullscreen applications.
+    """
+    if not window:
+        return False
+    plat = get_platform()
+    if plat == "macos":
+        try:
+            import ctypes
+            import ctypes.util
+
+            objc_lib = ctypes.util.find_library("objc")
+            if not objc_lib:
+                return False
+            objc = ctypes.cdll.LoadLibrary(objc_lib)
+
+            objc.sel_registerName.restype = ctypes.c_void_p
+            objc.sel_registerName.argtypes = [ctypes.c_char_p]
+
+            msg_send_void_ulong = ctypes.CFUNCTYPE(
+                None, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_ulong
+            )(objc.objc_msgSend)
+            msg_send_void_long = ctypes.CFUNCTYPE(
+                None, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_long
+            )(objc.objc_msgSend)
+            msg_send_get_window = ctypes.CFUNCTYPE(
+                ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p
+            )(objc.objc_msgSend)
+
+            ns_view = int(window.winId())
+            if not ns_view:
+                return False
+
+            sel_window = objc.sel_registerName(b"window")
+            ns_window = msg_send_get_window(ns_view, sel_window)
+            if not ns_window:
+                return False
+
+            # NSWindowCollectionBehaviorCanJoinAllSpaces (1) | NSWindowCollectionBehaviorFullScreenAuxiliary (256) = 257
+            behavior = 257 if enabled else 0
+            sel_set_behavior = objc.sel_registerName(b"setCollectionBehavior:")
+            msg_send_void_ulong(ns_window, sel_set_behavior, behavior)
+
+            # Level: NSStatusWindowLevel (25) or NSFloatingWindowLevel (3)
+            level = 25 if enabled else 3
+            sel_set_level = objc.sel_registerName(b"setLevel:")
+            msg_send_void_long(ns_window, sel_set_level, level)
+
+            return True
+        except Exception as e:
+            print(f"[SnappedIt] Failed to set window spaces behavior: {e}")
+            return False
+    return False
+
+
 def play_capture_sound() -> None:
     """Play a subtle capture/shutter sound. Fails silently on error."""
     plat = get_platform()
