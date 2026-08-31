@@ -104,11 +104,10 @@ def main():
         toolbar.setWindowOpacity(settings.toolbar_opacity)
         exclude = settings.exclude_toolbar_from_capture
         set_window_excluded_from_capture(toolbar, exclude)
-        set_window_excluded_from_capture(toast, exclude)
     settings.settings_changed.connect(_apply_settings_changes)
 
     # --- Apply initial window settings after show ---
-    QTimer.singleShot(500, _apply_settings_changes)
+    _apply_settings_changes()
     
     # Start services
     hotkey_mgr.start()

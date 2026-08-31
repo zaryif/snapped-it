@@ -95,52 +95,7 @@ def set_window_excluded_from_capture(window, exclude: bool = True) -> None:
     """
     plat = get_platform()
 
-    if plat == "macos":
-        try:
-            import ctypes
-            import ctypes.util
-
-            objc_lib = ctypes.util.find_library("objc")
-            if not objc_lib:
-                return
-            objc = ctypes.cdll.LoadLibrary(objc_lib)
-
-            # Setup sel_registerName
-            objc.sel_registerName.restype = ctypes.c_void_p
-            objc.sel_registerName.argtypes = [ctypes.c_char_p]
-
-            # Explicit CFUNCTYPE declarations for ARM64 calling convention safety
-            msg_send_get_window = ctypes.CFUNCTYPE(
-                ctypes.c_void_p, ctypes.c_void_p, ctypes.c_void_p
-            )(objc.objc_msgSend)
-            msg_send_set_sharing = ctypes.CFUNCTYPE(
-                None, ctypes.c_void_p, ctypes.c_void_p, ctypes.c_ulong
-            )(objc.objc_msgSend)
-
-            # Get NSView pointer from QWidget
-            ns_view = int(window.winId())
-            if not ns_view:
-                return
-
-            sel_window = objc.sel_registerName(b"window")
-            ns_window = msg_send_get_window(ns_view, sel_window)
-
-            if not ns_window:
-                return
-
-            # Set sharing type: [nsWindow setSharingType:0 or 1]
-            # NSWindowSharingNone = 0, NSWindowSharingReadOnly = 1
-            sharing_type = 0 if exclude else 1
-            sel_set_sharing = objc.sel_registerName(b"setSharingType:")
-            msg_send_set_sharing(ns_window, sel_set_sharing, sharing_type)
-
-            state = "excluded from" if exclude else "included in"
-            print(f"[SnappedIt] macOS: Window {state} screen capture")
-
-        except Exception as e:
-            print(f"[SnappedIt] macOS window exclusion failed: {e}")
-
-    elif plat == "windows":
+    if plat == "windows":
         try:
             import ctypes
 
@@ -152,16 +107,11 @@ def set_window_excluded_from_capture(window, exclude: bool = True) -> None:
             if result:
                 state = "excluded from" if exclude else "included in"
                 print(f"[SnappedIt] Windows: Window {state} screen capture")
-            else:
-                print("[SnappedIt] Windows: SetWindowDisplayAffinity failed")
-
         except Exception as e:
             print(f"[SnappedIt] Windows window exclusion failed: {e}")
 
     else:
-        print(
-            "[SnappedIt] Linux: Window capture exclusion not supported"
-        )
+        pass
 
 
 def play_capture_sound() -> None:
